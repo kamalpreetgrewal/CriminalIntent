@@ -21,7 +21,7 @@ public class Crime {
     public UUID getId() {
         return mCrimeId;
     }
-    
+
     public String getTitle() {
         return mTitle;
     }
