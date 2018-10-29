@@ -8,7 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -44,22 +46,32 @@ public class CrimeListFragment extends Fragment {
     /**
      * This class creates a view holder for each of the crime items in the list. Get each of the
      * views in the item and assign them values in the bind method which is called in the adapter.
+     * Actions like touch on the list items are also handled here.
      */
-    private class CrimeHolder extends RecyclerView.ViewHolder {
+    private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mTitleTextView;
         private TextView mDateTextView;
+        private Button mContactPoliceButton;
         private Crime mCrime;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));
+        public CrimeHolder(View view) {
+            super(view);
             mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
             mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
+            mContactPoliceButton = (Button) itemView.findViewById(R.id.requires_police_button);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(crime.getTitle());
             mDateTextView.setText(crime.getDate().toString());
+        }
+
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(getActivity(), "Crime " + mCrime.getId().toString() + " is clicked",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -75,9 +87,29 @@ public class CrimeListFragment extends Fragment {
         }
 
         @Override
+        public int getItemViewType(int position) {
+            Crime crime = mCrimes.get(position);
+            if (crime.getRequiresPolice()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            return new CrimeHolder(layoutInflater, parent);
+            View view = null;
+            switch (viewType) {
+                case 0:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_crime,
+                            parent, false);
+                    break;
+                case 1:
+                    view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_serious_crime,
+                            parent, false);
+                    break;
+            }
+            return new CrimeHolder(view);
         }
 
         @Override
