@@ -27,7 +27,6 @@ public class CrimeListFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.crime_list_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         updateUI();
 
         return view;
@@ -54,21 +53,34 @@ public class CrimeListFragment extends Fragment {
         private Button mContactPoliceButton;
         private ImageView mCrimeSolvedImageView;
         private Crime mCrime;
+        private boolean mSolvedImageExists = false;
 
         public CrimeHolder(View view) {
             super(view);
-            mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
-            mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
-            mContactPoliceButton = (Button) itemView.findViewById(R.id.requires_police_button);
-            mCrimeSolvedImageView = (ImageView) itemView.findViewById(R.id.crime_solved);
-            itemView.setOnClickListener(this);
+            mTitleTextView = (TextView) view.findViewById(R.id.crime_title);
+            mDateTextView = (TextView) view.findViewById(R.id.crime_date);
+            mContactPoliceButton = (Button) view.findViewById(R.id.requires_police_button);
+            /**
+             * Depending on which item type is displayed, the image icon will be visible or invisible.
+             * First it has to be checked if the imageview exists or not. If it exists, it is defined
+             * otherwise a crash occurs which is being dealt with the if statement here.
+             */
+            if (view.findViewById(R.id.image_crime_solved) != null) {
+                mSolvedImageExists = true;
+                mCrimeSolvedImageView = (ImageView) view.findViewById(R.id.image_crime_solved);
+            }
+            view.setOnClickListener(this);
         }
 
         public void bind(Crime crime) {
             mCrime = crime;
-            mTitleTextView.setText(crime.getTitle());
-            mDateTextView.setText(crime.getDate().toString());
-            //mCrimeSolvedImageView.setVisibility(View.INVISIBLE);
+            mTitleTextView.setText(mCrime.getTitle());
+            mDateTextView.setText(mCrime.getDate().toString());
+            if (crime.isSolved() && mSolvedImageExists) {
+                mCrimeSolvedImageView.setVisibility(View.VISIBLE);
+            } else if (!crime.isSolved() && mSolvedImageExists){
+                mCrimeSolvedImageView.setVisibility(View.GONE);
+            }
         }
 
         @Override
